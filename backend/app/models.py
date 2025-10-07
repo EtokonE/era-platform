@@ -121,7 +121,6 @@ class DivisionGroup(DivisionGroupBase, table=True):
     division: Division | None = Relationship(back_populates="groups")
     players: list["Player"] = Relationship(
         back_populates="group",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
