@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app.core.config import settings
-from app.models import Division, DivisionGroup
+from app.models import Division, DivisionGroup, Player
 from tests.utils.utils import random_lower_string
 
 
@@ -25,6 +25,26 @@ def create_group(
     session.commit()
     session.refresh(group)
     return group
+
+
+def create_player(
+    session: Session,
+    *,
+    division: Division,
+    group: DivisionGroup | None,
+    full_name: str | None = None,
+) -> Player:
+    player = Player(
+        full_name=full_name or f"Player-{random_lower_string()[:8]}",
+        rating=1500,
+        photo_url="https://example.com/photo.jpg",
+        division_id=division.id,
+        group_id=group.id if group else None,
+    )
+    session.add(player)
+    session.commit()
+    session.refresh(player)
+    return player
 
 
 def test_superuser_can_create_and_update_player(
@@ -159,3 +179,19 @@ def test_filter_players_by_division_and_group(
     combined_data = combined_response.json()
     assert combined_data["count"] == 1
     assert combined_data["data"][0]["full_name"] == "DivisionOneB"
+
+
+def test_deleting_group_keeps_players_and_clears_group(
+    db: Session,
+) -> None:
+    division = create_division(db)
+    group = create_group(db, division=division)
+    player = create_player(db, division=division, group=group)
+
+    db.delete(group)
+    db.commit()
+
+    remaining_player = db.get(Player, player.id)
+    assert remaining_player is not None
+    assert remaining_player.division_id == division.id
+    assert remaining_player.group_id is None

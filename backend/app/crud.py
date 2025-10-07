@@ -123,6 +123,6 @@ def get_players(
         statement = statement.where(Player.group_id == group_id)
         count_statement = count_statement.where(Player.group_id == group_id)
 
-    players = session.exec(statement.offset(skip).limit(limit)).all()
+    players = list(session.exec(statement.offset(skip).limit(limit)).all())
     total = session.exec(count_statement).one()
     return players, total

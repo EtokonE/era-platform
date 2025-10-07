@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Message, PlayerCreate, PlayerPublic, PlayerUpdate, PlayersPublic
+from app.models import Message, PlayerCreate, PlayerPublic, PlayersPublic, PlayerUpdate
 
 router = APIRouter(prefix="/players", tags=["players"])
 
