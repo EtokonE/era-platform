@@ -92,6 +92,72 @@ class ItemsPublic(SQLModel):
     count: int
 
 
+# Shared properties for divisions
+class DivisionBase(SQLModel):
+    name: str = Field(index=True, unique=True, max_length=255)
+
+
+class Division(DivisionBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    groups: list["DivisionGroup"] = Relationship(back_populates="division")
+    players: list["Player"] = Relationship(back_populates="division")
+
+
+class DivisionGroupBase(SQLModel):
+    name: str = Field(index=True, max_length=255)
+
+
+class DivisionGroup(DivisionGroupBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    division_id: uuid.UUID = Field(
+        foreign_key="division.id", nullable=False, ondelete="CASCADE"
+    )
+    division: Division | None = Relationship(back_populates="groups")
+    players: list["Player"] = Relationship(back_populates="group")
+
+
+class PlayerBase(SQLModel):
+    full_name: str = Field(max_length=255)
+    rating: int = Field(default=0, ge=0)
+    photo_url: str | None = Field(default=None, max_length=1024)
+
+
+class PlayerCreate(PlayerBase):
+    division_id: uuid.UUID
+    group_id: uuid.UUID | None = None
+
+
+class PlayerUpdate(SQLModel):
+    full_name: str | None = Field(default=None, max_length=255)
+    rating: int | None = Field(default=None, ge=0)
+    photo_url: str | None = Field(default=None, max_length=1024)
+    division_id: uuid.UUID | None = None
+    group_id: uuid.UUID | None = None
+
+
+class Player(PlayerBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    division_id: uuid.UUID = Field(
+        foreign_key="division.id", nullable=False, ondelete="CASCADE"
+    )
+    group_id: uuid.UUID | None = Field(
+        default=None, foreign_key="divisiongroup.id", ondelete="SET NULL"
+    )
+    division: Division | None = Relationship(back_populates="players")
+    group: DivisionGroup | None = Relationship(back_populates="players")
+
+
+class PlayerPublic(PlayerBase):
+    id: uuid.UUID
+    division_id: uuid.UUID
+    group_id: uuid.UUID | None = None
+
+
+class PlayersPublic(SQLModel):
+    data: list[PlayerPublic]
+    count: int
+
+
 # Generic message
 class Message(SQLModel):
     message: str
