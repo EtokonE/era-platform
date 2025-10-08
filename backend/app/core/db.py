@@ -2,7 +2,7 @@ from sqlmodel import Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
-from app.models import User, UserCreate
+from app.models import Division, DivisionGroup, User, UserCreate
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
@@ -31,3 +31,18 @@ def init_db(session: Session) -> None:
             is_superuser=True,
         )
         user = crud.create_user(session=session, user_create=user_in)
+
+    division = session.exec(select(Division)).first()
+    if division is None:
+        division = Division(name="Open Division", description="Default division")
+        session.add(division)
+        session.commit()
+        session.refresh(division)
+
+    group = session.exec(
+        select(DivisionGroup).where(DivisionGroup.division_id == division.id)
+    ).first()
+    if group is None:
+        group = DivisionGroup(name="Group A", division_id=division.id)
+        session.add(group)
+        session.commit()

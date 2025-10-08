@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import EmailStr
+from pydantic import ConfigDict, EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -109,6 +109,12 @@ class Division(DivisionBase, table=True):
     )
 
 
+class DivisionPublic(DivisionBase):
+    model_config = ConfigDict(from_attributes=True, title="Division")
+
+    id: uuid.UUID
+
+
 class DivisionGroupBase(SQLModel):
     name: str = Field(max_length=255, index=True)
 
@@ -122,6 +128,13 @@ class DivisionGroup(DivisionGroupBase, table=True):
     players: list["Player"] = Relationship(
         back_populates="group",
     )
+
+
+class DivisionGroupPublic(DivisionGroupBase):
+    model_config = ConfigDict(from_attributes=True, title="DivisionGroup")
+
+    id: uuid.UUID
+    division_id: uuid.UUID
 
 
 class PlayerBase(SQLModel):

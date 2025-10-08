@@ -55,6 +55,59 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const DivisionGroupPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Name'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        division_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Division Id'
+        }
+    },
+    type: 'object',
+    required: ['name', 'id', 'division_id'],
+    title: 'DivisionGroup'
+} as const;
+
+export const DivisionPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 512
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        }
+    },
+    type: 'object',
+    required: ['name', 'id'],
+    title: 'Division'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -210,6 +263,193 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const PlayerCreateSchema = {
+    properties: {
+        full_name: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Full Name'
+        },
+        rating: {
+            type: 'integer',
+            minimum: 0,
+            title: 'Rating',
+            default: 0
+        },
+        photo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Photo Url'
+        },
+        division_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Division Id'
+        },
+        group_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Group Id'
+        }
+    },
+    type: 'object',
+    required: ['full_name', 'division_id'],
+    title: 'PlayerCreate'
+} as const;
+
+export const PlayerPublicSchema = {
+    properties: {
+        full_name: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Full Name'
+        },
+        rating: {
+            type: 'integer',
+            minimum: 0,
+            title: 'Rating',
+            default: 0
+        },
+        photo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Photo Url'
+        },
+        division_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Division Id'
+        },
+        group_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Group Id'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        }
+    },
+    type: 'object',
+    required: ['full_name', 'division_id', 'id'],
+    title: 'PlayerPublic'
+} as const;
+
+export const PlayerUpdateSchema = {
+    properties: {
+        full_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Name'
+        },
+        rating: {
+            anyOf: [
+                {
+                    type: 'integer',
+                    minimum: 0
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Rating'
+        },
+        photo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 1024
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Photo Url'
+        },
+        division_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Division Id'
+        },
+        group_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Group Id'
+        }
+    },
+    type: 'object',
+    title: 'PlayerUpdate'
+} as const;
+
+export const PlayersPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/PlayerPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'PlayersPublic'
 } as const;
 
 export const PrivateUserCreateSchema = {
