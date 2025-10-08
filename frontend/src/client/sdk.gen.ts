@@ -3,7 +3,41 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { DivisionsListDivisionsResponse, DivisionsListDivisionGroupsData, DivisionsListDivisionGroupsResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PlayersListPlayersData, PlayersListPlayersResponse, PlayersCreatePlayerData, PlayersCreatePlayerResponse, PlayersGetPlayerData, PlayersGetPlayerResponse, PlayersUpdatePlayerData, PlayersUpdatePlayerResponse, PlayersDeletePlayerData, PlayersDeletePlayerResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+
+export class DivisionsService {
+    /**
+     * List Divisions
+     * @returns DivisionPublic Successful Response
+     * @throws ApiError
+     */
+    public static listDivisions(): CancelablePromise<DivisionsListDivisionsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/divisions/'
+        });
+    }
+    
+    /**
+     * List Division Groups
+     * @param data The data for the request.
+     * @param data.divisionId
+     * @returns DivisionGroupPublic Successful Response
+     * @throws ApiError
+     */
+    public static listDivisionGroups(data: DivisionsListDivisionGroupsData): CancelablePromise<DivisionsListDivisionGroupsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/divisions/{division_id}/groups',
+            path: {
+                division_id: data.divisionId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class ItemsService {
     /**
@@ -205,6 +239,116 @@ export class LoginService {
             url: '/api/v1/password-recovery-html-content/{email}',
             path: {
                 email: data.email
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class PlayersService {
+    /**
+     * List Players
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @param data.divisionId
+     * @param data.groupId
+     * @returns PlayersPublic Successful Response
+     * @throws ApiError
+     */
+    public static listPlayers(data: PlayersListPlayersData = {}): CancelablePromise<PlayersListPlayersResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/players/',
+            query: {
+                skip: data.skip,
+                limit: data.limit,
+                division_id: data.divisionId,
+                group_id: data.groupId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Player
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns PlayerPublic Successful Response
+     * @throws ApiError
+     */
+    public static createPlayer(data: PlayersCreatePlayerData): CancelablePromise<PlayersCreatePlayerResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/players/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Player
+     * @param data The data for the request.
+     * @param data.playerId
+     * @returns PlayerPublic Successful Response
+     * @throws ApiError
+     */
+    public static getPlayer(data: PlayersGetPlayerData): CancelablePromise<PlayersGetPlayerResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/players/{player_id}',
+            path: {
+                player_id: data.playerId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Player
+     * @param data The data for the request.
+     * @param data.playerId
+     * @param data.requestBody
+     * @returns PlayerPublic Successful Response
+     * @throws ApiError
+     */
+    public static updatePlayer(data: PlayersUpdatePlayerData): CancelablePromise<PlayersUpdatePlayerResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/players/{player_id}',
+            path: {
+                player_id: data.playerId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Player
+     * @param data The data for the request.
+     * @param data.playerId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deletePlayer(data: PlayersDeletePlayerData): CancelablePromise<PlayersDeletePlayerResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/players/{player_id}',
+            path: {
+                player_id: data.playerId
             },
             errors: {
                 422: 'Validation Error'
