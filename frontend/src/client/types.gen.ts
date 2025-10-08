@@ -44,6 +44,36 @@ export type NewPassword = {
     new_password: string;
 };
 
+export type PlayerCreate = {
+    full_name: string;
+    rating?: number;
+    photo_url?: (string | null);
+    division_id: string;
+    group_id?: (string | null);
+};
+
+export type PlayerPublic = {
+    full_name: string;
+    rating?: number;
+    photo_url?: (string | null);
+    division_id: string;
+    group_id?: (string | null);
+    id: string;
+};
+
+export type PlayersPublic = {
+    data: Array<PlayerPublic>;
+    count: number;
+};
+
+export type PlayerUpdate = {
+    full_name?: (string | null);
+    rating?: (number | null);
+    photo_url?: (string | null);
+    division_id?: (string | null);
+    group_id?: (string | null);
+};
+
 export type PrivateUserCreate = {
     email: string;
     password: string;
@@ -164,6 +194,40 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type PlayersListPlayersData = {
+    divisionId?: (string | null);
+    groupId?: (string | null);
+    limit?: number;
+    skip?: number;
+};
+
+export type PlayersListPlayersResponse = (PlayersPublic);
+
+export type PlayersCreatePlayerData = {
+    requestBody: PlayerCreate;
+};
+
+export type PlayersCreatePlayerResponse = (PlayerPublic);
+
+export type PlayersGetPlayerData = {
+    playerId: string;
+};
+
+export type PlayersGetPlayerResponse = (PlayerPublic);
+
+export type PlayersUpdatePlayerData = {
+    playerId: string;
+    requestBody: PlayerUpdate;
+};
+
+export type PlayersUpdatePlayerResponse = (PlayerPublic);
+
+export type PlayersDeletePlayerData = {
+    playerId: string;
+};
+
+export type PlayersDeletePlayerResponse = (Message);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;
