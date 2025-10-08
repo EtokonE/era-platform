@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
 
-import { ItemsService } from "@/client"
+import { PlayersService, type UserPublic } from "@/client"
 import {
   DialogActionTrigger,
   DialogBody,
@@ -17,35 +17,40 @@ import {
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
 
-const DeleteItem = ({ id }: { id: string }) => {
+interface DeletePlayerProps {
+  id: string
+}
+
+const DeletePlayer = ({ id }: DeletePlayerProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
+  const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm()
 
-  const deleteItem = async (id: string) => {
-    await ItemsService.deleteItem({ id: id })
-  }
-
   const mutation = useMutation({
-    mutationFn: deleteItem,
+    mutationFn: () => PlayersService.deletePlayer({ playerId: id }),
     onSuccess: () => {
-      showSuccessToast("The item was deleted successfully")
+      showSuccessToast("The player was deleted successfully")
       setIsOpen(false)
     },
     onError: () => {
-      showErrorToast("An error occurred while deleting the item")
+      showErrorToast("An error occurred while deleting the player")
     },
     onSettled: () => {
-      queryClient.invalidateQueries()
+      queryClient.invalidateQueries({ queryKey: ["players"] })
     },
   })
 
   const onSubmit = async () => {
-    mutation.mutate(id)
+    await mutation.mutateAsync()
+  }
+
+  if (!currentUser?.is_superuser) {
+    return null
   }
 
   return (
@@ -59,7 +64,7 @@ const DeleteItem = ({ id }: { id: string }) => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">
           <FiTrash2 fontSize="16px" />
-          Delete Item
+          Delete Player
         </Button>
       </DialogTrigger>
 
@@ -67,12 +72,12 @@ const DeleteItem = ({ id }: { id: string }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogCloseTrigger />
           <DialogHeader>
-            <DialogTitle>Delete Item</DialogTitle>
+            <DialogTitle>Delete Player</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              This item will be permanently deleted. Are you sure? You will not
-              be able to undo this action.
+              This player will be permanently deleted. Are you sure? You will
+              not be able to undo this action.
             </Text>
           </DialogBody>
 
@@ -101,4 +106,4 @@ const DeleteItem = ({ id }: { id: string }) => {
   )
 }
 
-export default DeleteItem
+export default DeletePlayer

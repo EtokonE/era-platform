@@ -1,10 +1,24 @@
 import uuid
 from typing import Any
 
-from sqlmodel import Session, select
+from sqlmodel import Session, func, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import (
+    Item,
+    ItemCreate,
+    Player,
+    PlayerCreate,
+    PlayerUpdate,
+    User,
+    UserCreate,
+    UserUpdate,
+)
+
+
+def ensure_superuser(user: User) -> None:
+    if not user.is_superuser:
+        raise PermissionError("The user doesn't have enough privileges")
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -52,3 +66,63 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def create_player(
+    *, session: Session, player_in: PlayerCreate, current_user: User
+) -> Player:
+    ensure_superuser(current_user)
+    db_player = Player.model_validate(player_in)
+    session.add(db_player)
+    session.commit()
+    session.refresh(db_player)
+    return db_player
+
+
+def update_player(
+    *,
+    session: Session,
+    db_player: Player,
+    player_in: PlayerUpdate,
+    current_user: User,
+) -> Player:
+    ensure_superuser(current_user)
+    player_data = player_in.model_dump(exclude_unset=True)
+    db_player.sqlmodel_update(player_data)
+    session.add(db_player)
+    session.commit()
+    session.refresh(db_player)
+    return db_player
+
+
+def delete_player(*, session: Session, db_player: Player, current_user: User) -> None:
+    ensure_superuser(current_user)
+    session.delete(db_player)
+    session.commit()
+
+
+def get_player(*, session: Session, player_id: uuid.UUID) -> Player | None:
+    return session.get(Player, player_id)
+
+
+def get_players(
+    *,
+    session: Session,
+    division_id: uuid.UUID | None = None,
+    group_id: uuid.UUID | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[Player], int]:
+    statement = select(Player)
+    count_statement = select(func.count()).select_from(Player)
+
+    if division_id is not None:
+        statement = statement.where(Player.division_id == division_id)
+        count_statement = count_statement.where(Player.division_id == division_id)
+    if group_id is not None:
+        statement = statement.where(Player.group_id == group_id)
+        count_statement = count_statement.where(Player.group_id == group_id)
+
+    players = list(session.exec(statement.offset(skip).limit(limit)).all())
+    total = session.exec(count_statement).one()
+    return players, total
