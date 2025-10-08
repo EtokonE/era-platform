@@ -124,6 +124,25 @@ class DivisionGroup(DivisionGroupBase, table=True):
     )
 
 
+class DivisionPublic(DivisionBase):
+    id: uuid.UUID
+
+
+class DivisionsPublic(SQLModel):
+    data: list[DivisionPublic]
+    count: int
+
+
+class DivisionGroupPublic(DivisionGroupBase):
+    id: uuid.UUID
+    division_id: uuid.UUID
+
+
+class DivisionGroupsPublic(SQLModel):
+    data: list[DivisionGroupPublic]
+    count: int
+
+
 class PlayerBase(SQLModel):
     full_name: str = Field(max_length=255)
     rating: int = Field(default=0, ge=0)

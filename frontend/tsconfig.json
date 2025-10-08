@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["vitest/globals", "vitest/importMeta"]
   },
   "include": ["src", "tests", "playwright.config.ts"],
   "references": [

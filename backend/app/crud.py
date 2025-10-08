@@ -5,6 +5,8 @@ from sqlmodel import Session, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Division,
+    DivisionGroup,
     Item,
     ItemCreate,
     Player,
@@ -126,3 +128,33 @@ def get_players(
     players = list(session.exec(statement.offset(skip).limit(limit)).all())
     total = session.exec(count_statement).one()
     return players, total
+
+
+def get_divisions(
+    *, session: Session, skip: int = 0, limit: int = 100
+) -> tuple[list[Division], int]:
+    statement = select(Division).offset(skip).limit(limit)
+    divisions = list(session.exec(statement).all())
+    total = session.exec(select(func.count()).select_from(Division)).one()
+    return divisions, total
+
+
+def get_division_groups(
+    *,
+    session: Session,
+    division_id: uuid.UUID | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[DivisionGroup], int]:
+    statement = select(DivisionGroup)
+    count_statement = select(func.count()).select_from(DivisionGroup)
+
+    if division_id is not None:
+        statement = statement.where(DivisionGroup.division_id == division_id)
+        count_statement = count_statement.where(
+            DivisionGroup.division_id == division_id
+        )
+
+    groups = list(session.exec(statement.offset(skip).limit(limit)).all())
+    total = session.exec(count_statement).one()
+    return groups, total

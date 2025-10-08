@@ -1,12 +1,17 @@
-import { Button, DialogTitle, Text } from "@chakra-ui/react"
+import {
+  Button,
+  DialogActionTrigger,
+  DialogTitle,
+  Text,
+} from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
 
-import { ItemsService } from "@/client"
+import { PlayersService } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
 import {
-  DialogActionTrigger,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
@@ -16,36 +21,40 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
 
-const DeleteItem = ({ id }: { id: string }) => {
+interface DeletePlayerProps {
+  playerId: string
+  isDisabled?: boolean
+  playerName: string
+}
+
+const DeletePlayer = ({
+  playerId,
+  isDisabled,
+  playerName,
+}: DeletePlayerProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
-  const { showSuccessToast, showErrorToast } = useCustomToast()
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm()
-
-  const deleteItem = async (id: string) => {
-    await ItemsService.deleteItem({ id: id })
-  }
+  const { showSuccessToast } = useCustomToast()
+  const { handleSubmit, formState } = useForm({})
 
   const mutation = useMutation({
-    mutationFn: deleteItem,
+    mutationFn: () => PlayersService.deletePlayer({ playerId }),
     onSuccess: () => {
-      showSuccessToast("The item was deleted successfully")
+      showSuccessToast("Player deleted successfully.")
       setIsOpen(false)
     },
-    onError: () => {
-      showErrorToast("An error occurred while deleting the item")
+    onError: (err: ApiError) => {
+      handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries()
+      queryClient.invalidateQueries({ queryKey: ["players"] })
     },
   })
 
-  const onSubmit = async () => {
-    mutation.mutate(id)
+  const onSubmit = () => {
+    mutation.mutate()
   }
 
   return (
@@ -57,31 +66,33 @@ const DeleteItem = ({ id }: { id: string }) => {
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" colorPalette="red">
-          <FiTrash2 fontSize="16px" />
-          Delete Item
+        <Button
+          variant="ghost"
+          size="sm"
+          colorPalette="red"
+          disabled={isDisabled}
+        >
+          <FiTrash2 fontSize="14px" />
+          Delete Player
         </Button>
       </DialogTrigger>
-
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogCloseTrigger />
           <DialogHeader>
-            <DialogTitle>Delete Item</DialogTitle>
+            <DialogTitle>Delete Player</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              This item will be permanently deleted. Are you sure? You will not
-              be able to undo this action.
+              {`This will permanently remove ${playerName}. Are you sure you want to continue?`}
             </Text>
           </DialogBody>
-
           <DialogFooter gap={2}>
             <DialogActionTrigger asChild>
               <Button
                 variant="subtle"
                 colorPalette="gray"
-                disabled={isSubmitting}
+                disabled={formState.isSubmitting || mutation.isPending}
               >
                 Cancel
               </Button>
@@ -90,7 +101,7 @@ const DeleteItem = ({ id }: { id: string }) => {
               variant="solid"
               colorPalette="red"
               type="submit"
-              loading={isSubmitting}
+              loading={formState.isSubmitting || mutation.isPending}
             >
               Delete
             </Button>
@@ -101,4 +112,4 @@ const DeleteItem = ({ id }: { id: string }) => {
   )
 }
 
-export default DeleteItem
+export default DeletePlayer
